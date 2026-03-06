@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' blob: https://fonts.googleapis.com https://fonts.gstatic.com">
+  <title>Web Audio Mastering</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+  <!-- Custom Titlebar (Electron only) -->
+  <div id="customTitlebar" class="custom-titlebar hidden">
+    <div class="titlebar-drag">
+      <span class="titlebar-title">Web Audio Mastering</span>
+    </div>
+    <div class="titlebar-controls">
+      <button id="titlebarMin" class="titlebar-btn" aria-label="Minimize">
+        <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
+      </button>
+      <button id="titlebarMax" class="titlebar-btn" aria-label="Maximize">
+        <svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+      <button id="titlebarClose" class="titlebar-btn titlebar-close" aria-label="Close">
+        <svg width="10" height="10" viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="app-container web-version">
+    <!-- Header Row -->
+    <header class="app-header">
+      <div class="logo">
+        <div class="logo-icon"><img src="logo-icon.png" alt="Logo"></div>
+        <div class="logo-text">
+          <span class="logo-title">Web Audio Mastering</span>
+          <span class="logo-subtitle">Pro Mastering</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="checklist-mini">
+          <div class="check-item" id="mini-format"><span>●</span> Waiting</div>
+        </div>
+        <div class="header-export">
+          <div class="progress-container hidden" id="progressContainer">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span id="progressText">0%</span>
+            <button id="cancelBtn" class="btn-cancel">Cancel</button>
+          </div>
+          <button id="applyBtn" class="btn-apply" disabled>Apply</button>
+          <button id="processBtn" class="btn-process" disabled>Export</button>
+          <div class="lang-wrapper">
+            <button id="langBtn" class="btn-lang" title="Language" aria-label="Language">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                <path d="M2 12h20"/>
+              </svg>
+            </button>
+            <div id="langMenu" class="lang-menu hidden">
+              <button class="lang-option" data-lang="en">English</button>
+              <button class="lang-option" data-lang="kr">한국어</button>
+            </div>
+          </div>
+          <button id="shortcutsBtn" class="btn-shortcuts" title="Keyboard Shortcuts" aria-label="Keyboard Shortcuts">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- File Drop Zone -->
+      <div class="file-zone" id="dropZone">
+        <div class="file-zone-content" id="fileZoneContent">
+          <div class="drop-icon">📂</div>
+          <p>Drop audio file here or</p>
+          <button id="selectFile" class="btn-select">Browse Files</button>
+          <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.flac,.aac,.m4a,.mp4" hidden>
+          <span class="file-types">MP3, WAV, FLAC, AAC, M4A, MP4</span>
+        </div>
+        <div class="file-loaded hidden" id="fileLoaded">
+          <div class="file-header">
+            <div class="file-info-row">
+              <span class="file-icon">🎵</span>
+              <div class="file-details">
+                <span class="file-name" id="fileName">No file</span>
+                <span class="file-meta" id="fileMeta">--</span>
+                <span class="dc-offset-badge hidden" id="dcOffsetBadge" title="DC offset was detected and removed">DC
+                  Fixed</span>
+                <span class="edited-badge hidden" id="editedBadge" title="Audio has been edited in this session">Edited</span>
+              </div>
+              <div class="file-actions">
+                <button id="changeFile" class="btn-change">Load</button>
+                <button id="unloadFile" class="btn-unload" title="Unload file" aria-label="Unload file">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="audio-player">
+            <div class="time-display">
+              <span id="currentTime" class="time">0:00:00</span>
+              <span class="time-separator">/</span>
+              <span id="duration" class="time">0:00:00</span>
+            </div>
+            <div id="waveform" class="waveform-container"></div>
+            <input type="range" id="seekBar" class="seek-bar hidden" min="0" max="100" value="0">
+            <div class="transport-row">
+              <!-- Left: Zoom Controls -->
+              <div class="transport-group transport-group-left">
+              <button id="zoomOutBtn" class="transport-btn" title="Zoom Out (-)" aria-label="Zoom Out">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                  <path d="M8 11h6" />
+                </svg>
+              </button>
+              <button id="zoomInBtn" class="transport-btn" title="Zoom In (+)" aria-label="Zoom In">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                  <path d="M11 8v6" />
+                  <path d="M8 11h6" />
+                </svg>
+              </button>
+              <button id="zoomResetBtn" class="transport-btn" title="Reset Zoom (0)" aria-label="Reset Zoom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                </svg>
+              </button>
+              <button id="waveHeightBtn" class="transport-btn btn-bypass" title="2x Waveform Height" aria-label="2x Waveform Height">
+                <span class="wave-height-label">2X</span>
+              </button>
+              <button id="stereoViewBtn" class="transport-btn btn-bypass" title="Stereo Waveform View" aria-label="Stereo Waveform View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 24 14" fill="none"
+                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <path d="M2 3.5 Q6 1, 8 3.5 Q10 6, 12 3.5 Q14 1, 16 3.5 Q18 6, 22 3.5" />
+                  <path d="M2 10.5 Q6 8, 8 10.5 Q10 13, 12 10.5 Q14 8, 16 10.5 Q18 13, 22 10.5" />
+                </svg>
+              </button>
+              </div>
+
+              <!-- Center: Playback Controls -->
+              <div class="transport-group transport-group-center">
+              <button id="playBtn" class="transport-btn" disabled title="Play/Pause (Space)" aria-label="Play/Pause">
+                <span id="playIcon" class="icon-play">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path d="M6 4a1 1 0 0 1 1.5-.86l12 7a1 1 0 0 1 0 1.72l-12 7A1 1 0 0 1 6 18V4z" />
+                  </svg>
+                </span>
+                <span id="pauseIcon" class="icon-pause" style="display:none">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <rect x="5" y="4" width="5" height="16" rx="1" />
+                    <rect x="14" y="4" width="5" height="16" rx="1" />
+                  </svg>
+                </span>
+              </button>
+              <button id="stopBtn" class="transport-btn" disabled title="Stop (Shift+Space)" aria-label="Stop">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <rect width="16" height="16" x="4" y="4" rx="2" />
+                </svg>
+              </button>
+              <button id="repeatBtn" class="transport-btn btn-bypass" title="Toggle Repeat (R)" aria-label="Toggle Repeat">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m17 2 4 4-4 4" />
+                  <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                  <path d="m7 22-4-4 4-4" />
+                  <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+                </svg>
+              </button>
+              <button id="abLoopBtn" class="transport-btn btn-bypass" title="A-B Loop (Shift+Drag on waveform)" aria-label="A-B Loop">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 28 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <text x="4" y="17" font-size="12" font-weight="bold" fill="currentColor" font-family="Arial, sans-serif">A-B</text>
+                </svg>
+              </button>
+              </div>
+
+              <!-- Right: Audio Mode Toggles -->
+              <div class="transport-group transport-group-right">
+              <button id="inputModeBtn" class="transport-btn btn-input-mode" title="Monitor Mode: L/R → M/S → Mono (S)" aria-label="Monitor Mode">
+                <span class="input-mode-label">L/R</span>
+              </button>
+              <button id="dimBtn" class="transport-btn btn-bypass" title="Dim Output -8dB (D)" aria-label="Dim Output">
+                <span class="dim-label">DIM</span>
+              </button>
+
+              <button id="levelMatchBtn" class="transport-btn btn-bypass" title="Level Match (Preview uses normalized audio)" aria-label="Level Match">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="6" />
+                  <circle cx="12" cy="12" r="2" />
+                </svg>
+              </button>
+              <button id="bypassBtn" class="transport-btn btn-bypass active" title="Toggle Effects (FX)" aria-label="Toggle Effects">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+              </button>
+              <button id="spectroBtn" class="transport-btn btn-bypass" title="Toggle Spectrogram" aria-label="Toggle Spectrogram">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12H3" />
+                  <path d="M21 6H3" />
+                  <path d="M21 18H3" />
+                  <path d="M6 12v3" />
+                  <path d="M10 9v9" />
+                  <path d="M14 6v15" />
+                  <path d="M18 3v21" />
+                </svg>
+              </button>
+              </div>
+            </div>
+          </div>
+          <div class="level-meter" id="levelMeter">
+            <canvas id="meterCanvas" width="600" height="40"></canvas>
+            <div class="meter-labels">
+              <span>-48</span>
+              <span>-36</span>
+              <span>-24</span>
+              <span>-12</span>
+              <span>-6</span>
+              <span>0</span>
+            </div>
+            <div class="peak-display">
+              <span id="peakL">L: -∞ dB</span>
+              <span id="outputLufs">-- LUFS</span>
+              <span id="peakR">R: -∞ dB</span>
+            </div>
+            <div class="overload-indicator" id="overloadIndicator">CLIP</div>
+          </div>
+
+          <!-- Spectrogram Panel -->
+          <div class="spectrogram-panel hidden" id="spectrogramContainer"
+            style="margin-top: 15px; border-radius: 6px; overflow: hidden; height: 300px; background: #000; border: 1px solid #333;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Grid - 4 columns -->
+      <div class="panel-grid">
+        <div class="settings-card">
+          <h3>Quick Fix</h3>
+          <label class="toggle-row"
+            data-tip="Multiband compression to glue the mix together with balanced frequency control.">
+            <span>Glue Compression</span>
+            <input type="checkbox" id="glueCompression">
+            <span class="toggle"></span>
+          </label>
+          <label class="toggle-row"
+            data-tip="Multiband dynamic processor: de-esses, tames resonances, smooths AI artifacts in the 3-12kHz range.">
+            <span>De-harsh</span>
+            <input type="checkbox" id="deharsh" checked>
+            <span class="toggle"></span>
+          </label>
+          <label class="toggle-row" data-tip="Removes sub-bass rumble below 30Hz and fixes DC offset.">
+            <span>Clean Low End</span>
+            <input type="checkbox" id="cleanLowEnd" checked>
+            <span class="toggle"></span>
+          </label>
+          <label class="toggle-row" data-tip="Removes ultra-high frequencies above 18kHz for cleaner sound.">
+            <span>High Cut</span>
+            <input type="checkbox" id="highCut" checked>
+            <span class="toggle"></span>
+          </label>
+          <label class="toggle-row"
+            data-tip="Multiband transient shaper: adds punch to kicks (low), snap to snares (mid), leaves highs alone.">
+            <span>Add Punch</span>
+            <input type="checkbox" id="addPunch" checked>
+            <span class="toggle"></span>
+          </label>
+        </div>
+
+        <div class="settings-card" id="polishSection">
+          <div class="section-header">
+            <h3>Polish</h3>
+            <label class="section-toggle">
+              <input type="checkbox" id="polishSectionEnabled" checked>
+              <span class="toggle"></span>
+            </label>
+          </div>
+          <label class="toggle-row" data-tip="Reduces muddy frequencies around 250Hz for clarity.">
+            <span>Cut Mud</span>
+            <input type="checkbox" id="cutMud">
+            <span class="toggle"></span>
+          </label>
+          <label class="toggle-row" data-tip="Adds sparkle and brightness with a 12kHz high shelf boost.">
+            <span>Add Air</span>
+            <input type="checkbox" id="addAir" checked>
+            <span class="toggle"></span>
+          </label>
+          <label class="toggle-row" data-tip="Adds subtle tape-style saturation for analog warmth.">
+            <span>Tape Warmth</span>
+            <input type="checkbox" id="tapeWarmth" checked>
+            <span class="toggle"></span>
+          </label>
+          <label class="toggle-row" data-tip="Tube amplifier saturation with asymmetric waveshaping for musical even harmonics.">
+            <span>Tube Saturator</span>
+            <input type="checkbox" id="tubeSaturator">
+            <span class="toggle"></span>
+          </label>
+          <div class="tube-controls" id="tubeControls">
+            <div class="tube-preset-row">
+              <button class="tube-preset-btn active" data-tube="warm" title="12AX7 - Warm, smooth vocals">Warm</button>
+              <button class="tube-preset-btn" data-tube="bright" title="12AT7 - Bright, punchy drums">Bright</button>
+              <button class="tube-preset-btn" data-tube="fat" title="6L6 - Fat, thick bass">Fat</button>
+              <button class="tube-preset-btn" data-tube="clean" title="12AU7 - Clean, transparent">Clean</button>
+            </div>
+            <div class="tube-fader-row">
+              <div class="tube-fader-group">
+                <label>Drive</label>
+                <input type="range" id="tubeDrive" min="0" max="100" value="30" class="tube-slider">
+                <span id="tubeDriveValue">30%</span>
+              </div>
+              <div class="tube-fader-group">
+                <label>Mix</label>
+                <input type="range" id="tubeMix" min="0" max="100" value="20" class="tube-slider">
+                <span id="tubeMixValue">20%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card" id="editSection">
+          <div class="section-header">
+            <h3>Edit</h3>
+            <label class="section-toggle">
+              <input type="checkbox" id="editSectionEnabled" checked>
+              <span class="toggle"></span>
+            </label>
+          </div>
+          <div class="edit-controls">
+            <label class="toggle-row" data-tip="Reverse the entire audio.">
+              <span>Reverse Audio</span>
+              <input type="checkbox" id="reverseAudio">
+              <span class="toggle"></span>
+            </label>
+            <label class="toggle-row" data-tip="Insert silence at cursor position (Coming soon)">
+              <span>Insert Silence</span>
+              <input type="checkbox" id="insertSilence" disabled>
+              <span class="toggle"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="section-header">
+            <h3>Output</h3>
+          </div>
+          <div class="select-row">
+            <span>Monitor Mode</span>
+            <div class="limiter-mode-row" id="limiterModeRow">
+              <button class="limiter-mode-btn active" data-mode="normal"
+                data-tip="Natural signal via DynamicsCompressor. Transients may slightly exceed ceiling.">Nrm</button>
+              <button class="limiter-mode-btn" data-mode="brickwall"
+                data-tip="Hard-clamps output so no sample exceeds ceiling. Improves VU meter accuracy.">Brk</button>
+            </div>
+          </div>
+          <div class="select-row">
+            <span>Sample Rate</span>
+            <select id="sampleRate">
+              <option value="44100">44.1 kHz</option>
+              <option value="48000" selected>48 kHz</option>
+              <option value="96000">96 kHz</option>
+            </select>
+          </div>
+          <div class="select-row">
+            <span>Bit Depth</span>
+            <select id="bitDepth">
+              <option value="16">16-bit</option>
+              <option value="24" selected>24-bit</option>
+              <option value="32">32-bit (float)</option>
+            </select>
+          </div>
+          <div class="output-presets">
+            <button class="output-preset-btn" data-preset="streaming"
+              data-tip="44.1kHz/16-bit - Standard quality for streaming platforms (Spotify, Apple Music)">Streaming</button>
+            <button class="output-preset-btn active" data-preset="studio"
+              data-tip="48kHz/24-bit - Professional quality for studio music production and video editing">Studio</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EQ + Stereo + Loudness Row -->
+      <div class="eq-row">
+        <!-- 7-Band EQ -->
+        <div class="eq-section" id="eqSection">
+          <div class="section-header">
+            <h3>EQ</h3>
+            <label class="section-toggle">
+              <input type="checkbox" id="eqSectionEnabled" checked>
+              <span class="toggle"></span>
+            </label>
+          </div>
+          <canvas id="eqCurveCanvas" class="eq-curve-canvas"></canvas>
+          <div class="eq-bands">
+            <div class="eq-band" id="eqSubBassFader" data-tip="Low shelf at 60Hz"></div>
+            <div class="eq-band" id="eqLowFader" data-tip="Peak at 150Hz"></div>
+            <div class="eq-band" id="eqLowMidFader" data-tip="Peak at 400Hz"></div>
+            <div class="eq-band" id="eqMidFader" data-tip="Peak at 1kHz"></div>
+            <div class="eq-band" id="eqHighMidFader" data-tip="Peak at 3kHz"></div>
+            <div class="eq-band" id="eqHighFader" data-tip="Peak at 8kHz"></div>
+            <div class="eq-band" id="eqAirFader" data-tip="High shelf at 16kHz"></div>
+          </div>
+          <div class="eq-presets">
+            <button class="preset-btn active" data-preset="flat">Flat</button>
+            <button class="preset-btn" data-preset="vocal">Vocal Boost</button>
+            <button class="preset-btn" data-preset="bass">Bass Boost</button>
+            <button class="preset-btn" data-preset="bright">Bright</button>
+            <button class="preset-btn" data-preset="warm">Warm</button>
+            <button class="preset-btn" data-preset="aifix">AI Fix</button>
+          </div>
+        </div>
+
+        <!-- Stereo Section -->
+        <div class="settings-card" id="stereoSection">
+          <div class="section-header">
+            <h3>Stereo</h3>
+            <label class="section-toggle">
+              <input type="checkbox" id="stereoSectionEnabled">
+              <span class="toggle"></span>
+            </label>
+          </div>
+          <div class="stereo-scope-container">
+            <canvas id="stereoScope"></canvas>
+          </div>
+          <div class="stereo-width-row" data-tip="Stereo width: 0% = mono, 100% = original, 200% = extra wide.">
+            <div class="stereo-width-label">
+              <span>Width</span>
+              <span class="slider-value" id="stereoWidthValue">100%</span>
+            </div>
+            <input type="range" id="stereoWidth" min="0" max="200" step="5" value="100">
+          </div>
+          <div class="stereo-width-row" data-tip="L/R Pan: adjust left-right channel volume. 0 = center, negative = left, positive = right.">
+            <div class="stereo-width-label">
+              <span>Pan</span>
+              <span class="slider-value" id="balanceValue">C</span>
+            </div>
+            <input type="range" id="balance" min="-100" max="100" step="1" value="0">
+          </div>
+          <label class="toggle-row" data-tip="Narrows bass below ~200Hz for better club/speaker mono compatibility.">
+            <span>Mono Bass</span>
+            <input type="checkbox" id="centerBass">
+            <span class="toggle"></span>
+          </label>
+          <label class="toggle-row" data-tip="Inverts the polarity of all channels. Not recommended for general use - only use for phase correction or mono compatibility testing.">
+            <span>Phase Invert</span>
+            <input type="checkbox" id="phaseInvert">
+            <span class="toggle"></span>
+          </label>
+        </div>
+
+        <!-- Loudness Section -->
+        <div class="settings-card loudness-card" id="loudnessSection">
+          <div class="section-header">
+            <h3>Loudness</h3>
+            <label class="section-toggle">
+              <input type="checkbox" id="loudnessSectionEnabled" checked>
+              <span class="toggle"></span>
+            </label>
+          </div>
+          <div class="loudness-faders">
+            <div id="inputGainFader" class="fader-container"
+              data-tip="Adjust input level before processing. Double-click to reset to 0dB."></div>
+            <div id="targetLufsFader" class="fader-container"
+              data-tip="Target loudness: -16 (quiet) to -6 (loud). -15 for streaming."></div>
+            <div id="ceilingFader" class="fader-container"
+              data-tip="Maximum peak level. -1dB is standard for streaming."></div>
+          </div>
+          <div class="loudness-toggles">
+            <label class="toggle-row" data-tip="Intelligent gain automation that balances quiet and loud sections.">
+              <span>Auto Level</span>
+              <input type="checkbox" id="autoLevel">
+              <span class="toggle"></span>
+            </label>
+            <label class="toggle-row"
+              data-tip="Normalize loudness to target LUFS. -14 for streaming, -9 for louder masters.">
+              <span>Normalize Loudness</span>
+              <input type="checkbox" id="normalizeLoudness">
+              <span class="toggle"></span>
+            </label>
+
+            <label class="toggle-row" data-tip="Limits peaks to the ceiling value using soft clipper and lookahead limiter.">
+              <span>Maximizer</span>
+              <input type="checkbox" id="maximizer" checked>
+              <span class="toggle"></span>
+            </label>
+            <label class="toggle-row" data-tip="Enable 4x oversampled inter-sample peak detection for broadcast-safe output.">
+              <span>True Peak</span>
+              <input type="checkbox" id="truePeakLimit">
+              <span class="toggle"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div id="statusMessage" class="status-message"></div>
+    </main>
+  </div>
+
+  <!-- Tooltip element -->
+  <div id="tooltip" class="tooltip"></div>
+
+  <!-- Loading Modal -->
+  <div id="loadingModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Loading progress">
+    <div class="modal-content">
+      <div class="modal-spinner"></div>
+      <div class="modal-text" id="loadingText">Loading...</div>
+      <div class="modal-progress">
+        <div class="modal-progress-bar" id="loadingProgressBar"></div>
+      </div>
+      <div class="modal-percent" id="loadingPercent">0%</div>
+      <div class="modal-eta" id="loadingEta"></div>
+      <button id="modalCancelBtn" class="btn-cancel hidden">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Unload Confirm Modal -->
+  <div id="unloadConfirmModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Confirm unload">
+    <div class="confirm-content">
+      <div class="confirm-icon">&#9888;</div>
+      <div class="confirm-title">Unsaved Changes</div>
+      <div class="confirm-message">This file has been edited.<br>Discard all changes and unload?</div>
+      <div class="confirm-buttons">
+        <button id="unloadCancelBtn" class="btn-confirm-cancel">Cancel</button>
+        <button id="unloadConfirmBtn" class="btn-confirm-discard">Unload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Modal -->
+  <div id="shortcutsModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="App info">
+    <div class="shortcuts-content">
+      <div class="shortcuts-header">
+        <div class="info-tabs">
+          <button class="info-tab active" data-tab="shortcuts">Shortcuts</button>
+          <button class="info-tab" data-tab="about">About</button>
+        </div>
+        <button id="closeShortcutsBtn" class="btn-close" aria-label="Close">×</button>
+      </div>
+
+      <!-- Shortcuts Tab -->
+      <div class="info-tab-content active" id="tabShortcuts">
+        <div class="shortcuts-body">
+          <div class="shortcuts-section">
+            <h3>Playback</h3>
+            <div class="shortcut-item">
+              <span class="shortcut-key">Space</span>
+              <span class="shortcut-desc">Play / Pause</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">Shift + Space</span>
+              <span class="shortcut-desc">Stop</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">R</span>
+              <span class="shortcut-desc">Repeat</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">L</span>
+              <span class="shortcut-desc">A-B Loop</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">S</span>
+              <span class="shortcut-desc">Monitor Mode (L/R → M/S → Mono)</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">D</span>
+              <span class="shortcut-desc">Dim (-8dB)</span>
+            </div>
+          </div>
+          <div class="shortcuts-section">
+            <h3>Waveform</h3>
+            <div class="shortcut-item">
+              <span class="shortcut-key">+</span>
+              <span class="shortcut-desc">Zoom In</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">-</span>
+              <span class="shortcut-desc">Zoom Out</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">0</span>
+              <span class="shortcut-desc">Reset Zoom</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">Ctrl + Wheel</span>
+              <span class="shortcut-desc">Zoom In/Out</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-key">Shift + Drag</span>
+              <span class="shortcut-desc">A-B Select</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About Tab -->
+      <div class="info-tab-content" id="tabAbout">
+        <div class="about-section">
+          <div class="about-logo">Web Audio Mastering</div>
+          <div class="about-version" id="aboutVersion">v1.1.0</div>
+          <div class="about-desc">AI-generated music mastering tool for streaming-ready quality</div>
+        </div>
+        <div class="about-update">
+          <div class="update-status" id="updateStatus">Click to check for updates</div>
+          <div class="update-actions">
+            <button id="checkUpdateBtn" class="btn-update">Check for Updates</button>
+            <button id="installUpdateBtn" class="btn-update btn-update-install hidden">Restart & Update</button>
+          </div>
+          <div class="update-progress hidden" id="updateProgress">
+            <div class="update-progress-bar">
+              <div class="update-progress-fill" id="updateProgressFill"></div>
+            </div>
+            <span class="update-progress-text" id="updateProgressText">0%</span>
+          </div>
+        </div>
+        <div class="about-links">
+          <a href="#" id="aboutGithub" class="about-link">GitHub</a>
+          <span class="about-separator">·</span>
+          <a href="#" id="aboutIssues" class="about-link">Report Issue</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>

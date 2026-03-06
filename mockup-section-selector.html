@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Section Selector Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --noir-black: #0a0a0a;
+      --noir-charcoal: #1a1a1a;
+      --noir-steel: #2a2a2a;
+      --studio-amber: #ff9f43;
+      --studio-copper: #d97736;
+      --studio-warm: #ffb366;
+      --glass-light: rgba(255, 255, 255, 0.04);
+      --glass-medium: rgba(255, 255, 255, 0.08);
+      --glass-heavy: rgba(255, 255, 255, 0.12);
+      --metal-edge: rgba(255, 255, 255, 0.15);
+      --text-primary: #ffffff;
+      --text-secondary: #b8b8b8;
+      --text-muted: #757575;
+    }
+
+    body {
+      background: var(--noir-black);
+      color: var(--text-primary);
+      font-family: 'Archivo', sans-serif;
+      min-height: 100vh;
+      padding: 32px;
+    }
+
+    h2 {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .layout {
+      display: flex;
+      gap: 20px;
+      max-width: 1400px;
+    }
+
+    /* ============================================
+       Right Sidebar (sticky column)
+       ============================================ */
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      align-self: flex-start;
+      position: sticky;
+      top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: calc(100vh - 64px);
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .sidebar::-webkit-scrollbar { display: none; }
+
+    /* ============================================
+       Section Selector Panel (우측 패널)
+       ============================================ */
+    .section-selector {
+      background: linear-gradient(135deg, var(--glass-light) 0%, var(--glass-medium) 100%);
+      border: 1px solid var(--metal-edge);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .section-selector h3 {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .section-selector-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .section-selector-item:hover {
+      background: var(--glass-light);
+    }
+
+    .section-selector-item input[type="checkbox"] {
+      display: none;
+    }
+
+    .section-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 2px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .section-check svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .section-selector-item input:checked + .section-check {
+      border-color: var(--studio-amber);
+      background: rgba(255, 159, 67, 0.15);
+    }
+
+    .section-selector-item input:checked + .section-check svg {
+      opacity: 1;
+      stroke: var(--studio-amber);
+    }
+
+    .section-selector-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: color 0.15s;
+    }
+
+    .section-selector-item input:checked ~ .section-selector-label {
+      color: var(--text-primary);
+    }
+
+    .section-selector-item:not(:has(input:checked)) .section-selector-label {
+      color: var(--text-muted);
+    }
+
+    /* ============================================
+       Settings Grid (기존 카드 영역)
+       ============================================ */
+    .panel-area {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .settings-card {
+      background: linear-gradient(135deg, var(--glass-light) 0%, var(--glass-medium) 100%);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid var(--metal-edge);
+      transition: all 0.25s ease, opacity 0.3s, transform 0.3s;
+      min-height: 140px;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settings-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--studio-amber) 50%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .settings-card:hover {
+      background: linear-gradient(135deg, var(--glass-medium) 0%, var(--glass-heavy) 100%);
+      border-color: var(--studio-amber);
+      transform: translateY(-2px);
+    }
+
+    .settings-card:hover::before { opacity: 1; }
+
+    /* 섹션 숨김 애니메이션 */
+    .settings-card.section-hidden {
+      display: none;
+    }
+
+    .settings-card h3 {
+      font-family: 'Archivo', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--studio-amber);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 0;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+      transition: color 0.15s;
+    }
+
+    .toggle-row:hover { color: var(--text-primary); }
+
+    .toggle {
+      width: 36px;
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #666;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: all 0.2s;
+    }
+
+    input:checked + .toggle {
+      background: var(--studio-amber);
+    }
+
+    input:checked + .toggle::after {
+      left: 18px;
+      background: #fff;
+    }
+
+    input[type="checkbox"] { display: none; }
+
+    /* ============================================
+       EQ Row (하단 영역)
+       ============================================ */
+    .eq-row {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .eq-section {
+      background: linear-gradient(135deg, var(--glass-light) 0%, var(--glass-medium) 100%);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid var(--metal-edge);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+      position: relative;
+    }
+
+    .eq-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--studio-amber) 50%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .eq-section:hover::before { opacity: 1; }
+    .eq-section:hover { border-color: var(--studio-amber); }
+
+    .eq-section h3 {
+      font-family: 'Archivo', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--studio-amber);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+
+    .eq-placeholder {
+      height: 60px;
+      background: rgba(255, 159, 67, 0.05);
+      border: 1px dashed rgba(255, 159, 67, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .eq-bands-placeholder {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      justify-content: center;
+    }
+
+    .eq-band-bar {
+      width: 32px;
+      height: 80px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 4px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .eq-band-bar::after {
+      content: '';
+      width: 20px;
+      height: var(--h, 40px);
+      background: linear-gradient(to top, var(--studio-amber), var(--studio-warm));
+      border-radius: 3px;
+      opacity: 0.4;
+      margin-bottom: 4px;
+    }
+
+    .eq-band-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* Loudness placeholder */
+    .loudness-faders-placeholder {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .fader-placeholder {
+      width: 32px;
+      height: 80px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .fader-placeholder::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 4px; right: 4px;
+      height: var(--h, 50%);
+      background: var(--studio-amber);
+      border-radius: 3px;
+      opacity: 0.3;
+    }
+
+    .fader-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .section-hidden { display: none; }
+
+    /* ============================================
+       History Panel (Undo/Redo 로그)
+       ============================================ */
+    .history-panel {
+      background: linear-gradient(135deg, var(--glass-light) 0%, var(--glass-medium) 100%);
+      border: 1px solid var(--metal-edge);
+      border-radius: 14px;
+      padding: 16px;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history-panel h3 {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+
+    .history-controls {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .history-btn {
+      flex: 1;
+      padding: 6px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .history-btn:hover {
+      background: var(--glass-light);
+      color: var(--text-secondary);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .history-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+
+    .history-item {
+      padding: 7px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .history-item:hover {
+      background: var(--glass-light);
+      color: var(--text-secondary);
+    }
+
+    .history-item.current {
+      color: var(--text-primary);
+      background: rgba(255, 159, 67, 0.08);
+    }
+
+    .history-item.current::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--studio-amber);
+      flex-shrink: 0;
+    }
+
+    .history-item.future {
+      opacity: 0.35;
+    }
+
+    .history-item .history-time {
+      margin-left: auto;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    /* ============================================
+       Note
+       ============================================ */
+    .mockup-note {
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(255, 159, 67, 0.05);
+      border: 1px solid rgba(255, 159, 67, 0.15);
+      border-radius: 12px;
+      max-width: 1400px;
+    }
+
+    .mockup-note h4 {
+      color: var(--studio-amber);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .mockup-note p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .mockup-note code {
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--studio-warm);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Mockup — Section Selector Panel</h2>
+
+  <div class="layout">
+    <!-- Main Panel Area -->
+    <div class="panel-area">
+      <!-- Settings Grid -->
+      <div class="panel-grid" id="panelGrid">
+        <!-- Quick Fix -->
+        <div class="settings-card" data-section="quickfix">
+          <h3>Quick Fix</h3>
+          <label class="toggle-row">
+            <span>Glue Compression</span>
+            <input type="checkbox"><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>De-harsh</span>
+            <input type="checkbox" checked><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>Clean Low End</span>
+            <input type="checkbox" checked><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>High Cut</span>
+            <input type="checkbox" checked><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>Add Punch</span>
+            <input type="checkbox" checked><span class="toggle"></span>
+          </label>
+        </div>
+
+        <!-- Stereo (토글 버튼 없음!) -->
+        <div class="settings-card" data-section="stereo">
+          <h3>Stereo</h3>
+          <div style="height:60px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:11px;color:var(--text-muted);">Goniometer</span>
+          </div>
+          <label class="toggle-row">
+            <span>Mono Bass</span>
+            <input type="checkbox" checked><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>Phase Invert</span>
+            <input type="checkbox"><span class="toggle"></span>
+          </label>
+        </div>
+
+        <!-- Polish (토글 버튼 없음!) -->
+        <div class="settings-card" data-section="polish">
+          <h3>Polish</h3>
+          <label class="toggle-row">
+            <span>Cut Mud</span>
+            <input type="checkbox"><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>Add Air</span>
+            <input type="checkbox" checked><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>Tape Warmth</span>
+            <input type="checkbox" checked><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>Tube Saturator</span>
+            <input type="checkbox"><span class="toggle"></span>
+          </label>
+        </div>
+
+        <!-- Output -->
+        <div class="settings-card" data-section="output">
+          <h3>Output</h3>
+          <label class="toggle-row">
+            <span>Sample Rate</span>
+            <span style="font-size:12px;color:var(--studio-warm);font-family:'IBM Plex Mono',monospace;">48 kHz</span>
+          </label>
+          <label class="toggle-row">
+            <span>Bit Depth</span>
+            <span style="font-size:12px;color:var(--studio-warm);font-family:'IBM Plex Mono',monospace;">24-bit</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- EQ Row -->
+      <div class="eq-row" id="eqRow">
+        <!-- Loudness -->
+        <div class="settings-card" data-section="loudness" style="min-height:auto;">
+          <h3>Loudness</h3>
+          <div class="loudness-faders-placeholder">
+            <div>
+              <div class="fader-placeholder" style="--h:65%;"></div>
+              <div class="fader-label">Input</div>
+            </div>
+            <div>
+              <div class="fader-placeholder" style="--h:85%;"></div>
+              <div class="fader-label">Ceiling</div>
+            </div>
+          </div>
+          <label class="toggle-row">
+            <span>Auto Level</span>
+            <input type="checkbox"><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>Normalize</span>
+            <input type="checkbox"><span class="toggle"></span>
+          </label>
+          <label class="toggle-row">
+            <span>True Peak Limit</span>
+            <input type="checkbox" checked><span class="toggle"></span>
+          </label>
+        </div>
+
+        <!-- Edit + EQ -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <!-- Edit -->
+          <div class="settings-card" data-section="edit" style="min-height:auto;">
+            <h3>Edit</h3>
+            <label class="toggle-row">
+              <span>Reverse Audio</span>
+              <input type="checkbox"><span class="toggle"></span>
+            </label>
+          </div>
+
+          <!-- EQ -->
+          <div class="eq-section" data-section="eq">
+            <h3>EQ</h3>
+            <div class="eq-placeholder">EQ Curve Canvas</div>
+            <div class="eq-bands-placeholder">
+              <div>
+                <div class="eq-band-bar" style="--h:35px;"></div>
+                <div class="eq-band-label">60</div>
+              </div>
+              <div>
+                <div class="eq-band-bar" style="--h:50px;"></div>
+                <div class="eq-band-label">150</div>
+              </div>
+              <div>
+                <div class="eq-band-bar" style="--h:30px;"></div>
+                <div class="eq-band-label">400</div>
+              </div>
+              <div>
+                <div class="eq-band-bar" style="--h:45px;"></div>
+                <div class="eq-band-label">1k</div>
+              </div>
+              <div>
+                <div class="eq-band-bar" style="--h:55px;"></div>
+                <div class="eq-band-label">3k</div>
+              </div>
+              <div>
+                <div class="eq-band-bar" style="--h:40px;"></div>
+                <div class="eq-band-label">8k</div>
+              </div>
+              <div>
+                <div class="eq-band-bar" style="--h:30px;"></div>
+                <div class="eq-band-label">16k</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar (sticky, 스크롤 따라다님) -->
+    <div class="sidebar">
+      <!-- Section Selector -->
+      <div class="section-selector">
+        <h3>Modules</h3>
+        <label class="section-selector-item" data-target="quickfix">
+          <input type="checkbox" checked>
+          <span class="section-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="section-selector-label">Quick Fix</span>
+        </label>
+        <label class="section-selector-item" data-target="stereo">
+          <input type="checkbox" checked>
+          <span class="section-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="section-selector-label">Stereo</span>
+        </label>
+        <label class="section-selector-item" data-target="polish">
+          <input type="checkbox" checked>
+          <span class="section-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="section-selector-label">Polish</span>
+        </label>
+        <label class="section-selector-item" data-target="output">
+          <input type="checkbox" checked>
+          <span class="section-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="section-selector-label">Output</span>
+        </label>
+        <label class="section-selector-item" data-target="loudness">
+          <input type="checkbox" checked>
+          <span class="section-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="section-selector-label">Loudness</span>
+        </label>
+        <label class="section-selector-item" data-target="edit">
+          <input type="checkbox" checked>
+          <span class="section-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="section-selector-label">Edit</span>
+        </label>
+        <label class="section-selector-item" data-target="eq">
+          <input type="checkbox" checked>
+          <span class="section-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="section-selector-label">EQ</span>
+        </label>
+      </div>
+
+      <!-- History / Undo-Redo Log -->
+      <div class="history-panel">
+        <h3>History</h3>
+        <div class="history-controls">
+          <button class="history-btn" disabled>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Undo
+          </button>
+          <button class="history-btn" disabled>
+            Redo
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="history-list">
+          <div class="history-item future">EQ Air +3.0 dB <span class="history-time">14:32</span></div>
+          <div class="history-item future">Tape Warmth ON <span class="history-time">14:31</span></div>
+          <div class="history-item current">Stereo Width → 130% <span class="history-time">14:30</span></div>
+          <div class="history-item">De-harsh ON <span class="history-time">14:29</span></div>
+          <div class="history-item">Target LUFS → -12 <span class="history-time">14:28</span></div>
+          <div class="history-item">Ceiling → -1.0 dB <span class="history-time">14:27</span></div>
+          <div class="history-item">Input Gain +2.0 dB <span class="history-time">14:26</span></div>
+          <div class="history-item">Glue Compression ON <span class="history-time">14:25</span></div>
+          <div class="history-item" style="opacity:0.5;">File loaded <span class="history-time">14:24</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup-note">
+    <h4>Mockup Notes</h4>
+    <p>
+      <strong>Sidebar</strong>: <code>position: sticky</code>로 스크롤 시 화면에 고정.<br>
+      <strong>Modules</strong>: 체크박스로 섹션 표시/숨김 제어. 해제 시 카드 사라지고 Grid 리플로우.<br>
+      <strong>History</strong>: Undo/Redo 로그. 현재 위치(앰버 도트), 미래(흐릿), 과거(일반).<br>
+      클릭하면 해당 시점으로 점프 가능. Ctrl+Z / Ctrl+Shift+Z 단축키 연동 예정.
+    </p>
+  </div>
+
+  <script>
+    // Section toggle logic
+    document.querySelectorAll('.section-selector-item input').forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        const target = checkbox.closest('.section-selector-item').dataset.target;
+        const cards = document.querySelectorAll(`[data-section="${target}"]`);
+        cards.forEach(card => {
+          card.classList.toggle('section-hidden', !checkbox.checked);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

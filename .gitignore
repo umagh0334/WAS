@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-electron/
+web/dist/
+web/dist-electron/
+out/
+public/
+release/
+reference/
+
+# Electron-builder artifacts
+*.exe
+*.dmg
+*.AppImage
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+.vite/
+.vscode/
+
+# Demucs binary + model (too large for git)
+resources/
+
+# Develop Datas
+TODO.md
+CLAUDE.md
+STEM_PLAN.md
+TESTER-GUIDE.md
+claudedocs/
+
+# License files (installer only)
+LICENSE.txt
+LICENSE_en.txt
+LICENSE_ko.txt
+
+# Local tool state
+.omc/
+.claude/
