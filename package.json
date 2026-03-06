@@ -2,13 +2,13 @@
   "name": "web-audio-mastering",
   "version": "1.1.0",
   "description": "Desktop app for mastering AI-generated music (or any audio for that matter) to streaming-ready quality",
-  "homepage": "https://entrepeneur4lyf.github.io/Web-Audio-Mastering/",
+  "homepage": "https://github.com/umagh0334/WAS",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/entrepeneur4lyf/Web-Audio-Mastering.git"
+    "url": "git+https://github.com/umagh0334/WAS.git"
   },
   "bugs": {
-    "url": "https://github.com/entrepeneur4lyf/Web-Audio-Mastering/issues"
+    "url": "https://github.com/umagh0334/WAS/issues"
   },
   "main": "dist-electron/main.js",
   "scripts": {
@@ -71,8 +71,8 @@
     "artifactName": "${productName} Setup.${ext}",
     "publish": {
       "provider": "github",
-      "owner": "entrepeneur4lyf",
-      "repo": "Web-Audio-Mastering"
+      "owner": "umagh0334",
+      "repo": "WAS"
     },
     "directories": {
       "output": "release"
