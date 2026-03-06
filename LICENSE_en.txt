@@ -1,0 +1,121 @@
+END-USER LICENSE AGREEMENT (EULA)
+FOR WEB AUDIO MASTERING
+
+Last updated: March 2026
+
+IMPORTANT - READ THIS OR DON'T, WE BOTH KNOW YOU'RE GONNA CLICK "I AGREE"
+
+By installing, copying, or otherwise using Web Audio Mastering ("the Software"),
+you agree to be bound by the terms of this End-User License Agreement ("EULA").
+If you do not agree, close this window and go back to mastering in Audacity
+with a YouTube tutorial from 2014. We won't judge. Actually, we will. A little.
+
+1. GRANT OF LICENSE
+The Software is licensed, not sold. This distinction matters to lawyers and
+absolutely nobody else. You are granted a non-exclusive, non-transferable
+license to make your tracks sound like they were NOT mixed in a bedroom
+at 3 AM with $40 headphones. (We know you did. It's okay. We all did.)
+
+2. ACCEPTABLE USE
+You may:
+  (a) Install the Software on as many devices as you want. Go wild.
+      Put it on your smart fridge for all we care.
+  (b) Use the Software on any audio file, including that SoundCloud
+      remix you made in 2016 that you swore you deleted.
+  (c) Take full credit for the results at your next studio session.
+      "Yeah bro, I just have golden ears." Sure you do, king.
+  (d) Use the term "analog warmth" while using entirely digital
+      processing. We won't tell anyone.
+  (e) Produce the loudness war crime of your choice. We provide the
+      limiter. What you do with it is between you and God.
+
+3. RESTRICTIONS
+You may NOT:
+  (a) Reverse engineer the Software. There is nothing in there except
+      math, tears, and mass amounts of caffeine.
+  (b) Redistribute the Software as your own. We will find you. We have
+      a very specific set of DSP skills.
+  (c) Sue us because your mix still sounds bad. Sometimes the problem
+      is upstream. Way upstream. Like, "maybe try re-recording" upstream.
+  (d) Use this Software and then post on Reddit asking "is DistroKid
+      ruining my master?" No. It was you. It was always you.
+  (e) Claim you "don't hear the difference" after A/B testing. You hear
+      it. Stop lying to yourself.
+
+4. AUDIO QUALITY DISCLAIMER
+The Software processes audio at up to 48kHz/24-bit. If your source file
+is a 96kbps MP3 ripped from a YouTube video of someone playing guitar
+in a bathroom, the Software will do its best, but miracles are not
+covered under this license.
+
+Side effects of using this Software may include: involuntary head-nodding,
+sudden urge to re-master your entire back catalog, superiority complex
+over other bedroom producers, and an irrational hatred of MP3 files.
+
+5. INTELLECTUAL PROPERTY
+All code, design, and DSP algorithms are the intellectual property of the
+developer. Your processed audio files belong to you, including all
+resulting Spotify streams (both of them) and any TikTok virality that
+may occur.
+
+The Studio Noir interface design is protected by copyright and also by
+the mass amounts of CSS that no human should ever have to read.
+
+6. WARRANTY DISCLAIMER
+THE SOFTWARE IS PROVIDED "AS IS." WE DO NOT GUARANTEE:
+  - THAT YOUR MIX WILL BE "RADIO READY" (WHAT DOES THAT EVEN MEAN ANYMORE)
+  - THAT YOUR SOUNDCLOUD FOLLOWERS WILL INCREASE
+  - THAT THE MASTERING ENGINEER YOU PAID $500 COULD HAVE DONE IT BETTER
+    (THEY PROBABLY USED OZONE AND A PRESET ANYWAY)
+  - THAT YOUR DAW WON'T CRASH FOR COMPLETELY UNRELATED REASONS WHILE
+    THIS SOFTWARE IS OPEN
+
+7. LIMITATION OF LIABILITY
+THE DEVELOPER IS NOT RESPONSIBLE FOR:
+  - HEARING DAMAGE FROM MONITORING AT UNSAFE LEVELS BECAUSE "IT WASN'T
+    LOUD ENOUGH" (IT WAS. TURN IT DOWN.)
+  - ARGUMENTS WITH BANDMATES OVER THE FINAL MASTER
+  - EXISTENTIAL CRISIS WHEN YOU REALIZE THE AI-GENERATED SONG YOU FED
+    THROUGH THIS SOFTWARE SOUNDS BETTER THAN YOUR OWN MUSIC
+  - LOSS OF SLEEP FROM "JUST ONE MORE TWEAK" AT 4 AM
+  - ANY INCIDENT WHERE YOU ACCIDENTALLY EXPORT A 2GB WAV FILE AND YOUR
+    HARD DRIVE GIVES UP ON LIFE
+
+8. THE "LOUDNESS WAR" CLAUSE
+By using the built-in limiter, you acknowledge that pushing everything
+to -6 LUFS does not make your track "more professional." It makes it
+more compressed. These are different things. The Software includes LUFS
+metering specifically so you can watch yourself make bad decisions
+in real-time.
+
+9. TERMINATION
+This license terminates automatically if you:
+  (a) Violate any terms of this agreement.
+  (b) Go back to using a cracked copy of some other mastering suite.
+  (c) Unironically say "I can't tell the difference between 128kbps
+      and lossless" in a public forum.
+  (d) Start a podcast about audio production and recommend "just
+      slap an OTT on the master bus."
+
+10. GOVERNING LAW
+This agreement is governed by the universal and self-evident truth that
+clipping is bad (unless it's soft clipping, which is a "creative choice"),
+reverb on the master bus is a war crime, and you should always export
+at the highest quality available even though Spotify is going to
+transcode it to OGG Vorbis anyway.
+
+11. ACCEPTANCE
+BY CLICKING "I AGREE" YOU ACKNOWLEDGE THAT:
+  (a) You have read this agreement (lol no you didn't).
+  (b) You understand and accept all terms and conditions.
+  (c) You will not hold the developer responsible for any of the
+      above scenarios, no matter how personally attacked you feel
+      by sections 3(c) and 3(d).
+  (d) You agree that this Software is, objectively, pretty neat.
+
+TL;DR: Use it, have fun, don't sue us, and please stop clipping
+your masters.
+
+Copyright (c) 2026 Web Audio Mastering. All rights reserved.
+No audio files were harmed in the making of this Software.
+(Your mixes, however, are a different story.)

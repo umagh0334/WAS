@@ -35,10 +35,6 @@ STEM_PLAN.md
 TESTER-GUIDE.md
 claudedocs/
 
-# License files (installer only)
-LICENSE.txt
-LICENSE_en.txt
-LICENSE_ko.txt
 
 # Local tool state
 .omc/
